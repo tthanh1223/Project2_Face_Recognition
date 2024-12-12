@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-right: 20px;
+        }
+        label {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 250px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .video-wrapper {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        video, img {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="register-form" action="/register" method="post">
+            <h2>Register</h2>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+            <input type="hidden" id="image_data" name="image_data">
+            <button type="submit">Register</button>
+        </form>
+        <div class="video-container">
+            <h2>Webcam Preview</h2>
+            <div class="video-wrapper">
+                <video id="video" width="320" height="240" autoplay></video>
+                <img id="photo" width="320" height="240">
+            </div>
+            <button id="capture">Capture Photo</button>
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var video = document.getElementById('video');
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+            var photo = document.getElementById('photo');
+            var captureButton = document.getElementById('capture');
+            var imageDataInput = document.getElementById('image_data');
+
+            // Get access to the camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            // Trigger photo capture
+            captureButton.addEventListener('click', function() {
+                context.drawImage(video, 0, 0, 320, 240);
+                var data = canvas.toDataURL('image/jpeg', 0.5); // Compress image
+                photo.setAttribute('src', data);
+                imageDataInput.value = data;
+            });
+        })();
+    </script>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
